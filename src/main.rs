@@ -1,53 +1,14 @@
 #![feature(const_for)]
 #![feature(const_mut_refs)]
 
-use std::mem::transmute;
-
+use std::{mem::transmute};
 use rand::{prelude::{SliceRandom, SmallRng}, SeedableRng};
 
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
-#[repr(u8)]
-enum Suit {
-    Clubs,
-    Diamonds,
-    Hearts,
-    Spades,
-}
+mod agent;
+use agent::*;
 
-#[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord)]
-#[repr(u8)]
-enum Rank {
-    Three,
-    Four,
-    Five,
-    Six,
-    Seven,
-    Eight,
-    Nine,
-    Ten,
-    Jack,
-    Queen,
-    King,
-    Ace,
-    Two,
-}
-
-#[derive(Clone, Copy)]
-struct Card(u8);
-
-impl Card {
-    fn rank(&self) -> Rank {
-        unsafe { transmute(self.0 >> 2) }
-    }
-
-    fn suit(&self) -> Suit {
-        unsafe { transmute(self.0 & 0b00000011) }
-    }
-
-    const fn new(rank: Rank, suit: Suit) -> Card {
-        Card((rank as u8) << 2 | suit as u8)
-    }
-}
+mod types;
+use types::*;
 
 const DECK: [Card; 52] = {
     let mut cards = [Card(0); 52];
@@ -66,18 +27,17 @@ const DECK: [Card; 52] = {
     cards
 };
 
-#[inline(never)]
-fn init_rng() -> SmallRng {
-    SmallRng::from_entropy()
-}
+fn play_game<A: Agent>(agent: A, rng: &mut SmallRng) {
+    let mut deck = DECK;
+    deck.shuffle(rng);
 
-fn play_game() {
-    
+
 }
 
 fn main() {
-    let mut rng = init_rng();
-
-    let mut deck = DECK;
-    deck.shuffle(&mut rng);
+    let mut rng = SmallRng::from_entropy();
+    
+    let agent = todo!();
+    
+    play_game(agent, &mut rng);
 }
