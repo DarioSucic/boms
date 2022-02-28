@@ -5,7 +5,9 @@
     maybe_uninit_slice,
     maybe_uninit_array_assume_init,
     slice_as_chunks,
-    array_zip
+    array_zip,
+    generic_const_exprs,
+    array_chunks
 )]
 
 use std::{
@@ -108,16 +110,16 @@ fn play_game<const N: usize>(mut agents: [&mut dyn Agent; N]) -> usize {
 }
 
 fn main() {
-    const N: usize = 6;
-    let mut wins = [0; N];
+    const N_AGENTS: usize = 6;
+    let mut wins = [0; N_AGENTS];
 
     let n_games = 1 << 20;
     let mut round_times = Vec::with_capacity(n_games);
 
     for _ in 0..n_games {
-        let agents: [&mut dyn Agent; N] = [
+        let agents: [&mut dyn Agent; N_AGENTS] = [
             &mut RandomAgent::new(),
-            &mut SmallestAgent,
+            &mut RandomAgent::new(),
             &mut RandomAgent::new(),
             &mut RandomAgent::new(),
             &mut RandomAgent::new(),

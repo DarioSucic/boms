@@ -20,6 +20,8 @@ pub enum Card {
     ClubsOfThree,
 }
 
+// TODO: Represent Hand as a u32 holding the card counts.
+// Since there are only 4 cards of a given suit, we can represent a card count with 2 bits.
 pub struct Hand {
     pub cards: ArrayVec<Card, 8>,
 }
@@ -31,13 +33,17 @@ pub struct Deck {
 }
 
 impl Deck {
+    #[inline(never)]
     pub fn deal_hands<const N: usize>(&self) -> [Hand; N] {
         let mut hands = [(); N].map(|_| Hand {
             cards: ArrayVec::new(),
         });
 
         for (i, chunk) in self.cards.chunks_exact(52 / N).enumerate() {
-            hands[i].cards.extend(chunk.iter().copied());
+            unsafe {
+                hands[i].cards.set_len(chunk.len());
+            }
+            hands[i].cards.copy_from_slice(chunk);
         }
 
         hands
