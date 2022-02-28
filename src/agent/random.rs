@@ -1,21 +1,20 @@
 use std::{intrinsics::transmute, num::NonZeroU8};
 
 use arrayvec::ArrayVec;
-use rand::prelude::SliceRandom;
-use rand::{prelude::SmallRng, SeedableRng};
+use fastrand::Rng;
 
 use crate::types::{Card, Hand, Stack};
 
 use super::Agent;
 
 pub struct RandomAgent {
-    rng: SmallRng,
+    rng: Rng,
 }
 
 impl RandomAgent {
     pub fn new() -> RandomAgent {
         Self {
-            rng: SmallRng::from_entropy(),
+            rng: Rng::new()
         }
     }
 }
@@ -28,7 +27,7 @@ impl Agent for RandomAgent {
         n: Option<NonZeroU8>,
     ) -> Option<(Card, NonZeroU8)> {
         let mut counts = [0_u8; 16];
-        for &card in hand {
+        for &card in &hand.cards {
             counts[card as usize] += 1;
         }
 
@@ -42,6 +41,11 @@ impl Agent for RandomAgent {
             }
         }
 
-        possible.choose(&mut self.rng).map(|x| *x)
+        if possible.is_empty() {
+            return None;
+        }
+        
+        let idx = self.rng.usize(0..possible.len());
+        possible.get(idx).copied()
     }
 }

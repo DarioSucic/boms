@@ -20,7 +20,10 @@ pub enum Card {
     ClubsOfThree,
 }
 
-pub type Hand = ArrayVec<Card, 8>;
+pub struct Hand {
+    pub cards: ArrayVec<Card, 8>
+}
+
 pub type Stack = ArrayVec<Card, 56>;
 
 pub struct Deck {
@@ -28,12 +31,11 @@ pub struct Deck {
 }
 
 impl Deck {
-    #[inline(never)]
     pub fn deal_hands<const N: usize>(&self) -> [Hand; N] {
-        let mut hands = [(); N].map(|_| Hand::new());
+        let mut hands = [(); N].map(|_| Hand { cards: ArrayVec::new() });
 
         for (i, chunk) in self.cards.chunks_exact(52 / N).enumerate() {
-            hands[i].extend(chunk.iter().copied());
+            hands[i].cards.extend(chunk.iter().copied());
         }
 
         hands

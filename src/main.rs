@@ -8,10 +8,7 @@
     array_zip
 )]
 
-use rand::{
-    prelude::{SliceRandom, SmallRng},
-    SeedableRng,
-};
+
 use std::{
     mem::transmute,
     num::NonZeroU8,
@@ -22,6 +19,7 @@ mod agent;
 use agent::{Agent, RandomAgent};
 
 mod types;
+use fastrand::Rng;
 use types::*;
 
 use crate::agent::SmallestAgent;
@@ -50,10 +48,10 @@ const DECK: Deck = {
 };
 
 fn play_game<const N: usize>(mut agents: [&mut dyn Agent; N]) -> usize {
-    let mut rng = SmallRng::from_entropy();
+    let mut rng = Rng::new();
 
     let mut deck = DECK;
-    deck.cards.shuffle(&mut rng);
+    rng.shuffle(&mut deck.cards);
 
     let mut hands = deck.deal_hands::<N>();
     let mut stack = Stack::new();
@@ -86,9 +84,9 @@ fn play_game<const N: usize>(mut agents: [&mut dyn Agent; N]) -> usize {
                 }
 
                 // Remove `k` instances of `card` from `hand`
-                let hand_pre_len = hand.len();
+                let hand_pre_len = hand.cards.len();
                 let mut rem = u8::from(k);
-                hand.retain(|x| {
+                hand.cards.retain(|x| {
                     if *x == card {
                         if rem > 0 {
                             rem -= 1;
@@ -98,10 +96,10 @@ fn play_game<const N: usize>(mut agents: [&mut dyn Agent; N]) -> usize {
                     return true;
                 });
 
-                debug_assert!(hand_pre_len == (hand.len() + u8::from(k) as usize));
+                debug_assert!(hand_pre_len == (hand.cards.len() + u8::from(k) as usize));
                 debug_assert!(rem == 0);
 
-                if hand.is_empty() {
+                if hand.cards.is_empty() {
                     return i;
                 }
             } else {
