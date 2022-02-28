@@ -13,9 +13,7 @@ pub struct RandomAgent {
 
 impl RandomAgent {
     pub fn new() -> RandomAgent {
-        Self {
-            rng: Rng::new()
-        }
+        Self { rng: Rng::new() }
     }
 }
 
@@ -35,8 +33,8 @@ impl Agent for RandomAgent {
         let n = n.unwrap_or(unsafe { NonZeroU8::new_unchecked(1) });
 
         let mut possible: ArrayVec<(Card, NonZeroU8), 14> = ArrayVec::new();
-        for i in start_idx..=14 {
-            if counts[i] >= u8::from(n) {
+        for (i, &count) in counts.iter().enumerate().take(15).skip(start_idx) {
+            if count >= u8::from(n) {
                 possible.push((unsafe { transmute(i as u8) }, n));
             }
         }
@@ -44,7 +42,7 @@ impl Agent for RandomAgent {
         if possible.is_empty() {
             return None;
         }
-        
+
         let idx = self.rng.usize(0..possible.len());
         possible.get(idx).copied()
     }

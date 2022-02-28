@@ -1,4 +1,3 @@
-use arrayvec::ArrayVec;
 use std::num::NonZeroU8;
 
 use crate::types::{Card, Hand, Stack};

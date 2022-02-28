@@ -8,7 +8,6 @@
     array_zip
 )]
 
-
 use std::{
     mem::transmute,
     num::NonZeroU8,
@@ -48,7 +47,7 @@ const DECK: Deck = {
 };
 
 fn play_game<const N: usize>(mut agents: [&mut dyn Agent; N]) -> usize {
-    let mut rng = Rng::new();
+    let rng = Rng::new();
 
     let mut deck = DECK;
     rng.shuffle(&mut deck.cards);
@@ -74,7 +73,7 @@ fn play_game<const N: usize>(mut agents: [&mut dyn Agent; N]) -> usize {
                 n = None;
             }
 
-            if let Some((card, k)) = agent.play_turn(&hand, &stack, n) {
+            if let Some((card, k)) = agent.play_turn(hand, &stack, n) {
                 // println!("Player {i} played {card:?} x {k}");
 
                 stack.push(card);
@@ -87,13 +86,11 @@ fn play_game<const N: usize>(mut agents: [&mut dyn Agent; N]) -> usize {
                 let hand_pre_len = hand.cards.len();
                 let mut rem = u8::from(k);
                 hand.cards.retain(|x| {
-                    if *x == card {
-                        if rem > 0 {
-                            rem -= 1;
-                            return false;
-                        }
+                    if *x == card && rem > 0 {
+                        rem -= 1;
+                        return false;
                     }
-                    return true;
+                    true
                 });
 
                 debug_assert!(hand_pre_len == (hand.cards.len() + u8::from(k) as usize));
