@@ -1,26 +1,14 @@
 use std::{intrinsics::transmute, num::NonZeroU8};
 
 use arrayvec::ArrayVec;
-use rand::prelude::SliceRandom;
-use rand::{prelude::SmallRng, SeedableRng};
 
 use crate::types::{Card, Hand, Stack};
 
 use super::Agent;
 
-pub struct RandomAgent {
-    rng: SmallRng,
-}
+pub struct SmallestAgent;
 
-impl RandomAgent {
-    pub fn new() -> RandomAgent {
-        Self {
-            rng: SmallRng::from_entropy(),
-        }
-    }
-}
-
-impl Agent for RandomAgent {
+impl Agent for SmallestAgent {
     fn play_turn(
         &mut self,
         hand: &Hand,
@@ -42,6 +30,6 @@ impl Agent for RandomAgent {
             }
         }
 
-        possible.choose(&mut self.rng).map(|x| *x)
+        possible.first().map(|x| *x)
     }
 }

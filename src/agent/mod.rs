@@ -1,11 +1,19 @@
-use std::num::NonZeroU8;
 use arrayvec::ArrayVec;
+use std::num::NonZeroU8;
 
 use crate::types::{Card, Hand, Stack};
 
-pub mod random;
-use random::*;
+mod random;
+pub use random::*;
+
+mod smallest;
+pub use smallest::*;
 
 pub trait Agent {
-    fn play_turn(&mut self, hand: &mut Hand, stack: &Stack, n: Option<NonZeroU8>) -> ArrayVec<Card, 4>;
+    fn play_turn(
+        &mut self,
+        hand: &Hand,
+        stack: &Stack,
+        n: Option<NonZeroU8>,
+    ) -> Option<(Card, NonZeroU8)>;
 }
