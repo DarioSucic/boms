@@ -23,7 +23,7 @@ pub enum Card {
 // TODO: Represent Hand as a u32 holding the card counts.
 // Since there are only 4 cards of a given suit, we can represent a card count with 2 bits.
 pub struct Hand {
-    pub cards: ArrayVec<Card, 8>,
+    pub cards: ArrayVec<Card, 17>,
 }
 
 pub type Stack = ArrayVec<Card, 56>;
@@ -33,7 +33,6 @@ pub struct Deck {
 }
 
 impl Deck {
-    #[inline(never)]
     pub fn deal_hands<const N: usize>(&self) -> [Hand; N] {
         let mut hands = [(); N].map(|_| Hand {
             cards: ArrayVec::new(),

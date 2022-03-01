@@ -23,7 +23,7 @@ mod types;
 use fastrand::Rng;
 use types::*;
 
-use crate::agent::SmallestAgent;
+use crate::agent::{BiggestAgent, SmallestAgent};
 
 const DECK: Deck = {
     let suit = [
@@ -110,7 +110,7 @@ fn play_game<const N: usize>(mut agents: [&mut dyn Agent; N]) -> usize {
 }
 
 fn main() {
-    const N_AGENTS: usize = 6;
+    const N_AGENTS: usize = 5;
     let mut wins = [0; N_AGENTS];
 
     let n_games = 1 << 20;
@@ -120,13 +120,10 @@ fn main() {
         let agents: [&mut dyn Agent; N_AGENTS] = [
             &mut RandomAgent::new(),
             &mut RandomAgent::new(),
-            &mut RandomAgent::new(),
-            &mut RandomAgent::new(),
+            &mut SmallestAgent,
             &mut RandomAgent::new(),
             &mut RandomAgent::new(),
         ];
-
-        assert!(agents.len() >= 6);
 
         let st = Instant::now();
         let winner = play_game(agents);
@@ -142,35 +139,16 @@ fn main() {
         println!("Player {i}: {:.2}%", 100.0 * w as f64 / n_games as f64);
     }
 
-    fn pretty_num(n: u128) -> String {
-        let s = n.to_string();
-        let s = s.as_bytes();
-
-        s.rchunks(3)
-            .map(|x| String::from_utf8(x.to_vec()).unwrap())
-            .rev()
-            .collect::<Vec<String>>()
-            .join(",")
-    }
-
     println!();
     println!("Round times:");
+    println!("\ttotal: {:>14.2?}", round_times.iter().sum::<Duration>());
     println!(
-        "\tmean: {:>11} ns",
-        pretty_num(
-            round_times
-                .iter()
-                .fold(Duration::ZERO, |acc, &x| acc + x)
-                .as_nanos()
-                / n_games as u128
-        )
+        "\t mean: {:>14.2?}",
+        round_times.iter().fold(Duration::ZERO, |acc, &x| acc + x) / n_games as u32
     );
+    println!("\t  min: {:>14.2?}", round_times.iter().min().unwrap());
     println!(
-        "\t min: {:>11} ns",
-        pretty_num(round_times.iter().min().unwrap().as_nanos())
-    );
-    println!(
-        "\t max: {:>11} ns",
-        pretty_num(round_times.iter().max().unwrap().as_nanos())
+        "\t  max: {:>14.2?}",
+        round_times.iter().max().unwrap()
     );
 }

@@ -8,6 +8,9 @@ pub use random::*;
 mod smallest;
 pub use smallest::*;
 
+mod biggest;
+pub use biggest::*;
+
 pub trait Agent {
     fn play_turn(
         &mut self,
