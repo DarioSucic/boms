@@ -1,4 +1,4 @@
-use std::{intrinsics::transmute, num::NonZeroU8};
+use std::{num::NonZeroU8};
 
 use crate::types::{Card, Hand, Stack};
 

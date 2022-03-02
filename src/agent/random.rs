@@ -1,19 +1,26 @@
-use std::{intrinsics::transmute, num::NonZeroU8};
+use std::num::NonZeroU8;
 
 use arrayvec::ArrayVec;
-use fastrand::Rng;
+use nanorand::{Rng, WyRand};
 
 use crate::types::{Card, Hand, Stack};
 
 use super::Agent;
 
 pub struct RandomAgent {
-    rng: Rng,
+    rng: WyRand,
 }
 
+#[allow(dead_code)]
 impl RandomAgent {
     pub fn new() -> RandomAgent {
-        Self { rng: Rng::new() }
+        Self { rng: WyRand::new() }
+    }
+
+    pub fn from_seed(seed: u64) -> RandomAgent {
+        Self {
+            rng: WyRand::new_seed(seed),
+        }
     }
 }
 
@@ -24,7 +31,6 @@ impl Agent for RandomAgent {
         stack: &Stack,
         n: Option<NonZeroU8>,
     ) -> Option<(Card, NonZeroU8)> {
-
         let min_card = stack.last().copied().unwrap_or(Card::Three) as u8;
         let n = n.unwrap_or(NonZeroU8::new(1).unwrap());
 
@@ -39,7 +45,8 @@ impl Agent for RandomAgent {
             return None;
         }
 
-        let idx = self.rng.usize(0..possible.len());
-        possible.get(idx).copied()
+        let idx = self.rng.generate_range(0..possible.len());
+        unsafe { Some(*possible.get_unchecked(idx)) }
+        // possible.get(idx).copied()
     }
 }

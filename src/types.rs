@@ -34,6 +34,7 @@ pub struct Hand {
     pub card_counts: u64,
 }
 
+#[allow(dead_code)]
 impl Hand {
     pub fn empty() -> Hand {
         Hand { card_counts: 0 }
@@ -85,3 +86,26 @@ impl Deck {
         hands
     }
 }
+
+pub const DECK: Deck = {
+    let suit = [
+        Card::Three,
+        Card::Four,
+        Card::Five,
+        Card::Six,
+        Card::Seven,
+        Card::Eight,
+        Card::Nine,
+        Card::Ten,
+        Card::Jack,
+        Card::Queen,
+        Card::King,
+        Card::Ace,
+        Card::Two,
+    ];
+
+    let mut cards: [Card; 52] = unsafe { transmute([suit, suit, suit, suit]) };
+    cards[0] = Card::ClubsOfThree;
+
+    Deck { cards }
+};

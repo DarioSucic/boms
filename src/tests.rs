@@ -1,4 +1,3 @@
-
 use crate::DECK;
 
 use super::{Card, Hand};
@@ -85,7 +84,6 @@ fn test_hand() {
 
 #[test]
 fn test_deck() {
-
     const N: usize = 5;
 
     let deck = DECK;
@@ -93,9 +91,9 @@ fn test_deck() {
 
     let mut idx = 0;
     for hand in &hands {
-        for _ in 0..52/N {
+        for _ in 0..52 / N {
             let card = deck.cards[idx];
-            assert!(hand.get(card) == 1); 
+            assert!(hand.get(card) == 1);
             idx += 1;
         }
     }

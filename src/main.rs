@@ -1,58 +1,17 @@
-#![feature(
-    const_for,
-    const_mut_refs,
-    maybe_uninit_uninit_array,
-    maybe_uninit_slice,
-    maybe_uninit_array_assume_init,
-    slice_as_chunks,
-    array_zip,
-    generic_const_exprs,
-    array_chunks
-)]
-
 use std::{
-    mem::transmute,
     num::NonZeroU8,
     time::{Duration, Instant},
 };
 
+use nanorand::{Rng, WyRand};
+
 mod agent;
-use agent::{Agent, RandomAgent};
+use agent::{Agent, LargestAgent, RandomAgent, SmallestAgent};
 
 mod types;
-use fastrand::Rng;
 use types::*;
 
-mod tests;
-
-use crate::agent::{LargestAgent, SmallestAgent};
-
-const DECK: Deck = {
-    let suit = [
-        Card::Three,
-        Card::Four,
-        Card::Five,
-        Card::Six,
-        Card::Seven,
-        Card::Eight,
-        Card::Nine,
-        Card::Ten,
-        Card::Jack,
-        Card::Queen,
-        Card::King,
-        Card::Ace,
-        Card::Two,
-    ];
-
-    let mut cards: [Card; 52] = unsafe { transmute([suit, suit, suit, suit]) };
-    cards[0] = Card::ClubsOfThree;
-
-    Deck { cards }
-};
-
-fn play_game<const N: usize>(mut agents: [&mut dyn Agent; N]) -> usize {
-    let rng = Rng::new();
-
+fn play_game<const N: usize>(mut agents: [&mut dyn Agent; N], rng: &mut WyRand) -> usize {
     let mut deck = DECK;
     rng.shuffle(&mut deck.cards);
 
@@ -90,7 +49,7 @@ fn play_game<const N: usize>(mut agents: [&mut dyn Agent; N]) -> usize {
 
                 debug_assert!(hand.get(card) >= u8::from(k) as u64);
                 hand.set(card, hand.get(card) - u8::from(k) as u64);
-                
+
                 if hand.is_empty() {
                     return i;
                 }
@@ -103,23 +62,26 @@ fn play_game<const N: usize>(mut agents: [&mut dyn Agent; N]) -> usize {
 }
 
 fn main() {
-    const N_AGENTS: usize = 5;
+    const N_AGENTS: usize = 6;
     let mut wins = [0; N_AGENTS];
 
     let n_games = 1 << 20;
     let mut round_times = Vec::with_capacity(n_games);
 
+    let mut rng = WyRand::new_seed(0);
+
     for _game in 0..n_games {
         let agents: [&mut dyn Agent; N_AGENTS] = [
-            &mut RandomAgent::new(),
-            &mut RandomAgent::new(),
+            &mut LargestAgent,
             &mut SmallestAgent,
-            &mut RandomAgent::new(),
-            &mut RandomAgent::new(),
+            &mut RandomAgent::from_seed(rng.generate()),
+            &mut LargestAgent,
+            &mut SmallestAgent,
+            &mut RandomAgent::from_seed(rng.generate()),
         ];
 
         let st = Instant::now();
-        let winner = play_game(agents);
+        let winner = play_game(agents, &mut rng);
         let dt = st.elapsed();
 
         round_times.push(dt);
