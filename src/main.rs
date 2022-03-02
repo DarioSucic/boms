@@ -23,7 +23,9 @@ mod types;
 use fastrand::Rng;
 use types::*;
 
-use crate::agent::{BiggestAgent, SmallestAgent};
+mod tests;
+
+use crate::agent::{LargestAgent, SmallestAgent};
 
 const DECK: Deck = {
     let suit = [
@@ -63,8 +65,8 @@ fn play_game<const N: usize>(mut agents: [&mut dyn Agent; N]) -> usize {
     let mut n: Option<NonZeroU8> = None;
 
     loop {
-        for (i, (agent, hand)) in agents.iter_mut().zip(hands.iter_mut()).enumerate() {
-            if unsafe { *skips.get_unchecked(i) } {
+        for i in 0..N {
+            if skips[i] {
                 continue;
             }
 
@@ -75,30 +77,21 @@ fn play_game<const N: usize>(mut agents: [&mut dyn Agent; N]) -> usize {
                 n = None;
             }
 
+            let agent = &mut agents[i];
+            let hand = &mut hands[i];
+
             if let Some((card, k)) = agent.play_turn(hand, &stack, n) {
                 // println!("Player {i} played {card:?} x {k}");
+                n = n.or(Some(k));
 
-                stack.push(card);
-
-                if n == None {
-                    n = Some(k);
+                for _ in 0..u8::from(k) {
+                    stack.push(card);
                 }
 
-                // Remove `k` instances of `card` from `hand`
-                let hand_pre_len = hand.cards.len();
-                let mut rem = u8::from(k);
-                hand.cards.retain(|x| {
-                    if *x == card && rem > 0 {
-                        rem -= 1;
-                        return false;
-                    }
-                    true
-                });
-
-                debug_assert!(hand_pre_len == (hand.cards.len() + u8::from(k) as usize));
-                debug_assert!(rem == 0);
-
-                if hand.cards.is_empty() {
+                debug_assert!(hand.get(card) >= u8::from(k) as u64);
+                hand.set(card, hand.get(card) - u8::from(k) as u64);
+                
+                if hand.is_empty() {
                     return i;
                 }
             } else {
@@ -116,7 +109,7 @@ fn main() {
     let n_games = 1 << 20;
     let mut round_times = Vec::with_capacity(n_games);
 
-    for _ in 0..n_games {
+    for _game in 0..n_games {
         let agents: [&mut dyn Agent; N_AGENTS] = [
             &mut RandomAgent::new(),
             &mut RandomAgent::new(),
@@ -135,20 +128,20 @@ fn main() {
         wins[winner] += 1;
     }
 
+    println!("Per Player Winrate:");
     for (i, &w) in wins.iter().enumerate() {
-        println!("Player {i}: {:.2}%", 100.0 * w as f64 / n_games as f64);
+        println!("\tPlayer {i}: {:.2}%", 100.0 * w as f64 / n_games as f64);
     }
 
+    let rt_min = round_times.iter().min().unwrap();
+    let rt_max = round_times.iter().max().unwrap();
+    let rt_avg = round_times.iter().fold(Duration::ZERO, |acc, &x| acc + x) / n_games as u32;
+    let rt_sum = round_times.iter().sum::<Duration>();
+
     println!();
-    println!("Round times:");
-    println!("\ttotal: {:>14.2?}", round_times.iter().sum::<Duration>());
-    println!(
-        "\t mean: {:>14.2?}",
-        round_times.iter().fold(Duration::ZERO, |acc, &x| acc + x) / n_games as u32
-    );
-    println!("\t  min: {:>14.2?}", round_times.iter().min().unwrap());
-    println!(
-        "\t  max: {:>14.2?}",
-        round_times.iter().max().unwrap()
-    );
+    println!("Round Execution Time:");
+    println!("\t min: {:>14.2?}", rt_min);
+    println!("\t max: {:>14.2?}", rt_max);
+    println!("\t avg: {:>14.2?}", rt_avg);
+    println!("\t sum: {:>14.2?}", rt_sum);
 }

@@ -24,18 +24,14 @@ impl Agent for RandomAgent {
         stack: &Stack,
         n: Option<NonZeroU8>,
     ) -> Option<(Card, NonZeroU8)> {
-        let mut counts = [0_u8; 16];
-        for &card in &hand.cards {
-            counts[card as usize] += 1;
-        }
 
-        let start_idx = stack.last().map_or(1, |&card| card as usize);
-        let n = n.unwrap_or(unsafe { NonZeroU8::new_unchecked(1) });
+        let min_card = stack.last().copied().unwrap_or(Card::Three) as u8;
+        let n = n.unwrap_or(NonZeroU8::new(1).unwrap());
 
-        let mut possible: ArrayVec<(Card, NonZeroU8), 14> = ArrayVec::new();
-        for (i, &count) in counts.iter().enumerate().take(15).skip(start_idx) {
-            if count >= u8::from(n) {
-                possible.push((unsafe { transmute(i as u8) }, n));
+        let mut possible: ArrayVec<_, 14> = ArrayVec::new();
+        for i in min_card..=14 {
+            if hand.get(Card::from_u8(i)) >= u8::from(n) as u64 {
+                possible.push((Card::from_u8(i), n));
             }
         }
 
