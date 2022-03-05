@@ -1,6 +1,6 @@
 use std::num::NonZeroU8;
 
-use crate::types::{Card, Hand, Stack};
+use crate::types::{Card, CardCount, Hand, Stack};
 
 mod random;
 pub use random::*;
@@ -12,10 +12,5 @@ mod largest;
 pub use largest::*;
 
 pub trait Agent {
-    fn play_turn(
-        &mut self,
-        hand: &Hand,
-        stack: &Stack,
-        n: Option<NonZeroU8>,
-    ) -> Option<(Card, NonZeroU8)>;
+    fn play_turn(&mut self, hand: &Hand, stack: &Stack, n: CardCount) -> Option<(Card, NonZeroU8)>;
 }

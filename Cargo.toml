@@ -3,7 +3,15 @@ name = "boms"
 version = "0.1.0"
 edition = "2021"
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+[[bench]]
+name = "bench"
+harness = false
+
+[profile.release]
+lto = "thin"
+
+[dev-dependencies]
+criterion = "0.3.5"
 
 [dependencies]
 nanorand = { version = "0.6.1", features = ["wyrand"] }

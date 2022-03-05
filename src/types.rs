@@ -1,8 +1,8 @@
-use std::intrinsics::transmute;
+use std::{collections::HashMap, intrinsics::transmute, num::NonZeroU8};
 
 use arrayvec::ArrayVec;
 
-#[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
 #[repr(u8)]
 pub enum Card {
     _Uninit,
@@ -29,15 +29,17 @@ impl Card {
     }
 }
 
+pub type CardCount = Option<NonZeroU8>;
+
 #[derive(Clone, Copy)]
 pub struct Hand {
-    pub card_counts: u64,
+    card_counts: u64,
 }
 
 #[allow(dead_code)]
 impl Hand {
-    pub fn empty() -> Hand {
-        Hand { card_counts: 0 }
+    pub fn empty() -> Self {
+        Self { card_counts: 0 }
     }
 
     pub fn is_empty(&self) -> bool {
@@ -75,7 +77,8 @@ pub struct Deck {
 
 impl Deck {
     pub fn deal_hands<const N: usize>(&self) -> [Hand; N] {
-        let mut hands = [Hand::empty(); N];
+        // let mut hands = [Hand::empty(); N];
+        let mut hands = [(); N].map(|_| Hand::empty());
 
         for (i, chunk) in self.cards.chunks_exact(52 / N).enumerate() {
             for &card in chunk {
