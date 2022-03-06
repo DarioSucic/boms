@@ -1,6 +1,4 @@
-use crate::DECK;
-
-use super::{Card, Hand};
+use crate::{types::{Card, Hand, DECK}};
 
 const CARDS: [Card; 14] = [
     Card::Three,
@@ -22,23 +20,23 @@ const CARDS: [Card; 14] = [
 #[test]
 fn test_card() {
     for (&card, i) in CARDS.iter().zip(1_u8..=14) {
-        assert!(Card::from_u8(i) == card);
-        assert!(card as u8 == i);
+        assert!(Card::from_u8(3*i) == card);
+        assert!(card as u8 == 3*i);
     }
 }
 
 #[test]
 fn test_hand() {
     {
-        let mut hand = Hand::empty();
+        let hand = Hand::empty();
         assert!(hand.is_empty());
         for i in 1..=14 {
-            assert!(hand.get(Card::from_u8(i)) == 0);
+            assert!(hand.get(Card::from_u8(3*i)) == 0);
         }
     }
 
     for i in 1..=14 {
-        let card = Card::from_u8(i);
+        let card = Card::from_u8(3*i);
         let mut hand = Hand::empty();
 
         hand.inc(card);
@@ -46,7 +44,7 @@ fn test_hand() {
 
         for j in 1..=14 {
             if i != j {
-                let other_card = Card::from_u8(j);
+                let other_card = Card::from_u8(3*j);
                 assert!(hand.get(other_card) == 0);
             }
         }
@@ -73,7 +71,7 @@ fn test_hand() {
 
     let mut hand = Hand::empty();
     for i in 1..=14 {
-        hand.inc(Card::from_u8(i));
+        hand.inc(Card::from_u8(3*i));
     }
     assert!(
         hand.card_counts == 0b001001001001001001001001001001001001001001000,

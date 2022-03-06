@@ -1,26 +1,9 @@
 use std::{
-    num::NonZeroU8,
     time::{Duration, Instant},
 };
 
-use boms::{play_game, agent::{RandomAgent, Agent, LargestAgent, SmallestAgent}, types::{Hand, Stack, CardCount, Card}};
+use boms::{play_game, agent::{RandomAgent, LargestAgent, SmallestAgent, AgentType}, types::{DECK}};
 use nanorand::{Rng, WyRand};
-
-enum AgentType {
-    Smallest(SmallestAgent),
-    Largest(LargestAgent),
-    Random(RandomAgent)
-}
-
-impl Agent for AgentType {
-    fn play_turn(&mut self, hand: &Hand, stack: &Stack, n: CardCount) -> Option<(Card, NonZeroU8)> {
-        match self {
-            AgentType::Smallest(a) => a.play_turn(hand, stack, n),
-            AgentType::Largest(a) => a.play_turn(hand, stack, n),
-            AgentType::Random(a) => a.play_turn(hand, stack, n),
-        }
-    }
-}
 
 fn main() {
     const N_AGENTS: usize = 6;
@@ -42,7 +25,9 @@ fn main() {
         ];
 
         let st = Instant::now();
-        let winner = play_game(agents, &mut rng);
+        let mut deck = DECK;
+        rng.shuffle(&mut deck.cards);
+        let winner = play_game(agents, deck);
         let dt = st.elapsed();
 
         round_times.push(dt);
