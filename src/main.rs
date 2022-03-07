@@ -2,27 +2,34 @@ use std::{
     time::{Duration, Instant},
 };
 
-use boms::{play_game, agent::{RandomAgent, LargestAgent, SmallestAgent, AgentType}, types::{DECK}};
+use boms::{LOGGING, play_game, agent::{RandomAgent, LargestAgent, SmallestAgent, HumanAgent, AgentType}, types::{DECK}};
 use nanorand::{Rng, WyRand};
 
 fn main() {
     const N_AGENTS: usize = 6;
     let mut wins = [0; N_AGENTS];
 
-    let n_games = 1 << 20;
+    let n_games = 1 << 0;
     let mut round_times = Vec::with_capacity(n_games);
 
-    let mut rng = WyRand::new_seed(0);
+    let mut rng = WyRand::new();
 
     for _game in 0..n_games {
-        let agents: [AgentType; N_AGENTS] = [
+        let mut agents: [AgentType; N_AGENTS] = [
             AgentType::Largest(LargestAgent),
             AgentType::Smallest(SmallestAgent),
             AgentType::Random(RandomAgent::from_seed(rng.generate())),
-            AgentType::Largest(LargestAgent),
-            AgentType::Smallest(SmallestAgent),
             AgentType::Random(RandomAgent::from_seed(rng.generate())),
+            AgentType::Random(RandomAgent::from_seed(rng.generate())),
+            AgentType::Human(HumanAgent),
         ];
+
+        rng.shuffle(&mut agents);
+
+        if LOGGING {
+            println!("Players in the game: ");
+            println!("{:#?}", agents);
+        }
 
         let st = Instant::now();
         let mut deck = DECK;
@@ -33,6 +40,9 @@ fn main() {
         round_times.push(dt);
 
         // println!("Round time: {dt:?}");
+        if LOGGING {
+            println!("Player {winner} won");
+        }
         wins[winner] += 1;
     }
 

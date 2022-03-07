@@ -36,11 +36,11 @@ impl Agent for RandomAgent {
             }
         }
 
-        if possible.is_empty() {
+        let idx = self.rng.generate_range(0..=possible.len());
+        if idx == possible.len() {
             return None;
         }
-
-        let idx = self.rng.generate_range(0..possible.len());
+        
         unsafe { Some(*possible.get_unchecked(idx)) }
         // possible.get(idx).copied()
     }
