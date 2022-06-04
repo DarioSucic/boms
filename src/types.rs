@@ -10,14 +10,17 @@ pub enum Card {
     Four = 6,
     Five = 9,
     Six = 12,
+
     Seven = 15,
     Eight = 18,
     Nine = 21,
     Ten = 24,
+
     Jack = 27,
     Queen = 30,
     King = 33,
     Ace = 36,
+    
     Two = 39,
     ClubsOfThree = 42,
 }
@@ -64,7 +67,6 @@ impl Hand {
 
     pub fn inc(&mut self, card: Card) {
         let count = self.get(card);
-        debug_assert!(count <= 3);
         self.set(card, count + 1);
     }
 
@@ -87,7 +89,7 @@ impl Deck {
         // let mut hands = [Hand::empty(); N];
         let mut hands = [(); N].map(|_| Hand::empty());
 
-        for (i, chunk) in self.cards.chunks_exact(52 / N).enumerate() {
+        for (i, chunk) in self.cards.chunks_exact(self.cards.len() / N).enumerate() {
             for &card in chunk {
                 hands[i].inc(card);
             }

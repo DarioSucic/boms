@@ -9,22 +9,22 @@ fn main() {
     const N_AGENTS: usize = 6;
     let mut wins = [0; N_AGENTS];
 
-    let n_games = 1 << 0;
+    let n_games = 1 << 20;
     let mut round_times = Vec::with_capacity(n_games);
 
     let mut rng = WyRand::new();
 
     for _game in 0..n_games {
         let mut agents: [AgentType; N_AGENTS] = [
-            AgentType::Largest(LargestAgent),
-            AgentType::Smallest(SmallestAgent),
             AgentType::Random(RandomAgent::from_seed(rng.generate())),
             AgentType::Random(RandomAgent::from_seed(rng.generate())),
             AgentType::Random(RandomAgent::from_seed(rng.generate())),
-            AgentType::Human(HumanAgent),
+            AgentType::Random(RandomAgent::from_seed(rng.generate())),
+            AgentType::Random(RandomAgent::from_seed(rng.generate())),
+            AgentType::Random(RandomAgent::from_seed(rng.generate())),
         ];
 
-        rng.shuffle(&mut agents);
+        // rng.shuffle(&mut agents);
 
         if LOGGING {
             println!("Players in the game: ");

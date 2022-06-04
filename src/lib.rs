@@ -9,7 +9,7 @@ pub mod types;
 #[cfg(test)]
 mod tests;
 
-pub const LOGGING: bool = true;
+pub const LOGGING: bool = false;
 
 use agent::Agent;
 
